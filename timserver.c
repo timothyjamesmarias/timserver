@@ -51,14 +51,11 @@ int main(int argc, char const* argv[]) {
           throw_error("ERROR on accept");
       else
         printf("SERVER: Connected to client running at host %d port %d\n", ntohs(clientAddress.sin_addr.s_addr), ntohs(clientAddress.sin_port));
-      
-
-      
-      /* write stuff here */
-      
-      
 
 
+
+      
+      
 
       
       close(connectionSocket); 

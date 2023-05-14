@@ -17,6 +17,7 @@
 #include <netdb.h>
 
 #define MAX_CONNECTIONS 5
+#define MAX_BUFFER 256
 
 void setupAddressStruct(struct sockaddr_in* address, int portNumber);
 
