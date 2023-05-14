@@ -17,7 +17,10 @@
 #include <netdb.h>
 
 #define MAX_CONNECTIONS 5
+
 void setupAddressStruct(struct sockaddr_in* address, int portNumber);
+
+void throw_error(const char *msg);
 
 
 #endif // !TIMSERVER_H_
