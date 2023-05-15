@@ -1,13 +1,4 @@
 #include "helpers.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 size_t send_data(int socket, int time_out, char * msg){
   struct timeval begin, now;
@@ -88,26 +79,26 @@ char * receive_data(int socket, int timeout) {
         sleep(1);
       else {
         total_size += package_size;
-        tmp_string[tmp_string_idx] = malloc(package_size * sizeof tmp_string[tmp_string_idx]);
-        memset(tmp_string[tmp_string_idx], '\0',  package_size);
-        strcpy((tmp_string[tmp_string_idx]), data_chunk);
+        tmp_string[tmp_string_idx] = malloc(package_size + 1 * sizeof(char));
+        memset(tmp_string[tmp_string_idx], '\0',  package_size + 1);
+        strncpy((tmp_string[tmp_string_idx]), data_chunk, package_size);
         tmp_string_idx++;
 
         gettimeofday(&begin , NULL);
       }
   }
 
-  char * total_data = malloc(total_size * sizeof(char));
-  memset(total_data, '\0', total_size);
+  char * total_data = malloc(total_size + 1 * sizeof(char));
+  memset(total_data, '\0', total_size + 1);
 
   for (size_t i = 0; i < tmp_string_idx; i++)
       strncat(total_data, tmp_string[i], strlen(tmp_string[i]));
 
-  /* for (size_t i = 0; i < tmp_string_idx; i++){ */    
-  /*     if (tmp_string[i] != NULL){ */
-  /*       free(tmp_string[i]); */
-  /*     } */
-  /* } */
+  for (size_t i = 0; i < tmp_string_idx; i++) {
+      if (tmp_string[i] != NULL) {
+        free(tmp_string[i]);
+      }
+  }
 
   free(tmp_string);
   free(data_chunk);

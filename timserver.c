@@ -15,7 +15,6 @@ void throw_error(const char *msg) {
 } 
 
 int main(int argc, char const* argv[]) {
-
   int connectionSocket;
   struct sockaddr_in serverAddress, clientAddress;
   socklen_t sizeOfClientInfo = sizeof(clientAddress);
@@ -29,6 +28,7 @@ int main(int argc, char const* argv[]) {
   } 
   
   int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
+  
   if (listenSocket < 0)
     throw_error("ERROR opening socket");
 
@@ -53,12 +53,18 @@ int main(int argc, char const* argv[]) {
       else
         printf("SERVER: Connected to client running at host %d port %d\n", ntohs(clientAddress.sin_addr.s_addr), ntohs(clientAddress.sin_port));
 
+      char * msg = receive_data(connectionSocket, 5);
 
+      if (msg == NULL) {
+        printf("SERVER: Timeout reached. No data received.\n");
+        fflush(stdout);
+      }
+      else {
+        printf("SERVER: Received \"%s\" from client\n", msg);
+        fflush(stdout);
+      }
 
-      
-      
-
-      
+      free(msg);
       close(connectionSocket); 
     }
     else {
