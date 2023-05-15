@@ -1,1 +1,116 @@
 #include "helpers.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/time.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+size_t send_data(int socket, int time_out, char * msg){
+  struct timeval begin, now;
+  double time_difference;
+  ssize_t charsRead = 0;
+  size_t idx = 0, tmp_string_idx = 0;
+
+  char * data_chunk_1 = malloc(CHUNK_SIZE * sizeof(char));
+  memset(data_chunk_1, 0, CHUNK_SIZE);
+
+  if (strlen(msg) < CHUNK_SIZE) {
+    strcpy(data_chunk_1, msg);
+    charsRead = send(socket, data_chunk_1, strlen(data_chunk_1), 0);
+  }
+  else {
+    char ** tmp_string = malloc(DATA_BUFFER * sizeof(char*));
+    
+    fcntl(socket, F_SETFL, O_NONBLOCK);
+
+    gettimeofday(&begin , NULL);
+
+    while (1) {
+      gettimeofday(&now, NULL);
+      time_difference = (now.tv_sec - begin.tv_sec) + 1e-6 *(now.tv_sec - begin.tv_sec);
+
+      tmp_string[tmp_string_idx] = (char*) malloc(CHUNK_SIZE * sizeof(char));
+      strncpy(tmp_string[tmp_string_idx], msg + idx, CHUNK_SIZE); 
+      
+      charsRead += send(socket, tmp_string[tmp_string_idx], CHUNK_SIZE, 0);
+
+      if (charsRead == (ssize_t)strlen(msg) || charsRead > (ssize_t)strlen(msg))
+        break;
+      else if (charsRead == 0 && time_difference > time_out)
+        break;
+
+      tmp_string_idx++;
+      idx += CHUNK_SIZE;
+    }  
+
+    for (size_t i = 0; i <= tmp_string_idx; i++)
+      free(tmp_string[i]);
+    
+    free(tmp_string);
+    
+  }
+
+  free(data_chunk_1);
+
+  return charsRead;
+}
+
+char * receive_data(int socket, int timeout) {
+  ssize_t package_size = 0, total_size = 0;
+  struct timeval begin, now;
+  double time_difference;
+  
+  char * data_chunk = malloc(CHUNK_SIZE * sizeof(char));
+  char ** tmp_string = malloc(DATA_BUFFER * sizeof(char*));
+  size_t tmp_string_idx = 0;
+
+  fcntl(socket, F_SETFL, O_NONBLOCK);
+  gettimeofday(&begin , NULL);
+
+  while(1) {
+
+      gettimeofday(&now, NULL);
+      time_difference = (now.tv_sec - begin.tv_sec) + 1e-6 *(now.tv_sec - begin.tv_sec);
+
+      if (total_size > 0 && time_difference > timeout)
+        break;
+      else if (time_difference > timeout * 2)
+        break;
+
+      memset(data_chunk, '\0', CHUNK_SIZE);
+
+      package_size = recv(socket, data_chunk, CHUNK_SIZE, 0);
+      if (package_size <= 0)
+        sleep(1);
+      else {
+        total_size += package_size;
+        tmp_string[tmp_string_idx] = malloc(package_size * sizeof tmp_string[tmp_string_idx]);
+        memset(tmp_string[tmp_string_idx], '\0',  package_size);
+        strcpy((tmp_string[tmp_string_idx]), data_chunk);
+        tmp_string_idx++;
+
+        gettimeofday(&begin , NULL);
+      }
+  }
+
+  char * total_data = malloc(total_size * sizeof(char));
+  memset(total_data, '\0', total_size);
+
+  for (size_t i = 0; i < tmp_string_idx; i++)
+      strncat(total_data, tmp_string[i], strlen(tmp_string[i]));
+
+  /* for (size_t i = 0; i < tmp_string_idx; i++){ */    
+  /*     if (tmp_string[i] != NULL){ */
+  /*       free(tmp_string[i]); */
+  /*     } */
+  /* } */
+
+  free(tmp_string);
+  free(data_chunk);
+  
+  return total_data;
+}

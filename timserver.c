@@ -1,4 +1,5 @@
 #include "timserver.h"
+#include "helpers.h"
 
 void setupAddressStruct(struct sockaddr_in* address, int portNumber) {
   memset((char*) address, '\0', sizeof(*address)); 
