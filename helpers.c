@@ -105,3 +105,6 @@ char * receive_data(int socket, int timeout) {
   
   return total_data;
 }
+
+char * parse_header(char * data) {
+}
