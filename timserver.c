@@ -27,7 +27,7 @@ int main(int argc, char const* argv[]) {
 
   memset((char*) serverAddress, '\0', sizeof(*serverAddress)); 
   serverAddress->sin_family = AF_INET;
-  serverAddress->sin_port = htons(portNumber);
+  serverAddress->sin_port = htons(argv[1]);
   serverAddress->sin_addr.s_addr = INADDR_ANY;
 
   if (bind(listenSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
