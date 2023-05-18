@@ -2,10 +2,6 @@
 #include "helpers.h"
 
 void setupAddressStruct(struct sockaddr_in* address, int portNumber) {
-  memset((char*) address, '\0', sizeof(*address)); 
-  address->sin_family = AF_INET;
-  address->sin_port = htons(portNumber);
-  address->sin_addr.s_addr = INADDR_ANY;
 }
 
 void throw_error(const char *msg) {
@@ -33,6 +29,11 @@ int main(int argc, char const* argv[]) {
     throw_error("ERROR opening socket");
 
   setupAddressStruct(&serverAddress, atoi(argv[1]));
+  
+  memset((char*) serverAddress, '\0', sizeof(*serverAddress)); 
+  serverAddress->sin_family = AF_INET;
+  serverAddress->sin_port = htons(portNumber);
+  serverAddress->sin_addr.s_addr = INADDR_ANY;
 
   if (bind(listenSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
     throw_error("ERROR on binding");
