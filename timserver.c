@@ -1,9 +1,6 @@
 #include "timserver.h"
 #include "helpers.h"
 
-void setupAddressStruct(struct sockaddr_in* address, int portNumber) {
-}
-
 void throw_error(const char *msg) {
   perror(msg);
   fflush(stdout);
@@ -28,8 +25,6 @@ int main(int argc, char const* argv[]) {
   if (listenSocket < 0)
     throw_error("ERROR opening socket");
 
-  setupAddressStruct(&serverAddress, atoi(argv[1]));
-  
   memset((char*) serverAddress, '\0', sizeof(*serverAddress)); 
   serverAddress->sin_family = AF_INET;
   serverAddress->sin_port = htons(portNumber);
