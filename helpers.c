@@ -126,5 +126,24 @@ char ** parse_request(char * data) {
 }
 
 sizet route_data(char ** data, struct sockaddr_in * connectionSocket) {
+  if (data == NULL)
+    return 0;
+
+  char * token = strtok(data[0], " ");
+  char * method = malloc(strlen(token) + 1 * sizeof(char));
+  memset(method, '\0', strlen(token) + 1);
+  strncpy(method, token, strlen(token));
+
+  token = strtok(NULL, " ");
+  char * path = malloc(strlen(token) + 1 * sizeof(char));
+  memset(path, '\0', strlen(token) + 1);
+  strncpy(path, token, strlen(token));
+
+  token = strtok(NULL, " ");
+  char * protocol = malloc(strlen(token) + 1 * sizeof(char));
+  memset(protocol, '\0', strlen(token) + 1);
+  strncpy(protocol, token, strlen(token));
+
+
 
 }
