@@ -71,19 +71,20 @@ int main(int argc, char const* argv[]) {
             fflush(stdout);
             i++;
           }
+
+          route_data(parsed_data, &connectionSocket);
+
           i = 0;
           while (parsed_data[i] != NULL) {
             free(parsed_data[i]);
             i++;
-            printf("SERVER: Freeing memory.\n");
             fflush(stdout);
           }
           free(parsed_data);
-          printf("SERVER: Freeing memory.\n");
           fflush(stdout);
         }
       }
-      send(connectionSocket, "OK", 2, 0);
+      send_data(connectionSocket, 5, "HTTP/1.1 200 OK\n");
       close(connectionSocket); 
     }
     else {

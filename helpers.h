@@ -20,4 +20,6 @@ char * receive_data(int socket, int timeout);
 
 char ** parse_request(char * data);
 
+sizet route_data(char ** data, struct sockaddr_in * connectionSocket);
+
 #endif // !HELPERS_H_

@@ -125,3 +125,6 @@ char ** parse_request(char * data) {
   return parsed_request;
 }
 
+sizet route_data(char ** data, struct sockaddr_in * connectionSocket) {
+
+}
