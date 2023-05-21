@@ -7,6 +7,13 @@ void throw_error(const char *msg) {
   exit(1);
 } 
 
+void setupAddress(struct sockaddr_in* address, int portNumber) {
+  memset((char*) address, '\0', sizeof(*address)); 
+  address->sin_family = AF_INET;
+  address->sin_port = htons(portNumber);
+  address->sin_addr.s_addr = INADDR_ANY;
+}
+
 int main(int argc, char const* argv[]) {
   int connectionSocket;
   struct sockaddr_in serverAddress, clientAddress;
@@ -25,16 +32,10 @@ int main(int argc, char const* argv[]) {
   if (listenSocket < 0)
     throw_error("ERROR opening socket");
 
-  memset((char*) serverAddress, '\0', sizeof(*serverAddress)); 
-  serverAddress->sin_family = AF_INET;
-  serverAddress->sin_port = htons(argv[1]);
-  serverAddress->sin_addr.s_addr = INADDR_ANY;
+  setupAddress(&serverAddress, atoi(argv[1]));
 
-  if (bind(listenSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
+  if (bind(listenSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
     throw_error("ERROR on binding");
-  else {
-    printf("SERVER: Listening on port %d\n", atoi(argv[1]));
-    fflush(stdout);
   }
   
   listen(listenSocket, MAX_CONNECTIONS); 
@@ -56,11 +57,33 @@ int main(int argc, char const* argv[]) {
         fflush(stdout);
       }
       else {
-        printf("SERVER: Received \"%s\" from client\n", msg);
-        fflush(stdout);
-      }
+        char ** parsed_data = parse_request(msg);
+        free(msg);
 
-      free(msg);
+        if (parsed_data == NULL) {
+          printf("SERVER: No data received.\n");
+          fflush(stdout);
+        }
+        else {
+          size_t i = 0;
+          while (parsed_data[i] != NULL) {
+            printf("SERVER: %s\n", parsed_data[i]);
+            fflush(stdout);
+            i++;
+          }
+          i = 0;
+          while (parsed_data[i] != NULL) {
+            free(parsed_data[i]);
+            i++;
+            printf("SERVER: Freeing memory.\n");
+            fflush(stdout);
+          }
+          free(parsed_data);
+          printf("SERVER: Freeing memory.\n");
+          fflush(stdout);
+        }
+      }
+      send(connectionSocket, "OK", 2, 0);
       close(connectionSocket); 
     }
     else {

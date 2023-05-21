@@ -106,5 +106,22 @@ char * receive_data(int socket, int timeout) {
   return total_data;
 }
 
-char * parse_header(char * data) {
+char ** parse_request(char * data) {
+  if (data == NULL)
+    return NULL;
+
+  char ** parsed_request = calloc(DATA_BUFFER, sizeof(char*));
+  size_t idx = 0;
+  char * token = strtok(data, "\r\n");
+
+  while (token != NULL) {
+    parsed_request[idx] = malloc(strlen(token) + 1 * sizeof(char));
+    memset(parsed_request[idx], '\0', strlen(token) + 1);
+    strncpy(parsed_request[idx], token, strlen(token));
+    idx++;
+    token = strtok(NULL, "\r\n");
+  }
+
+  return parsed_request;
 }
+

@@ -18,6 +18,6 @@ size_t send_data(int socket, int time_out, char * msg);
 
 char * receive_data(int socket, int timeout);
 
-char * parse_header(char * msg) {
+char ** parse_request(char * data);
 
 #endif // !HELPERS_H_
